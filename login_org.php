@@ -1,6 +1,6 @@
 <<<<<<< HEAD
 <?php
-include("DB.php");
+include_once("DB.php");
 session_start();
 
 $email = '';
@@ -32,8 +32,18 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
     }
 }
 
-function is_logged_applicant(){ return isset($_SESSION['user_type']) && $_SESSION['user_type']==='applicant'; }
-function is_logged_org(){ return isset($_SESSION['user_type']) && $_SESSION['user_type']==='org_user'; }
+if (!function_exists('is_logged_applicant')) {
+    function is_logged_applicant() {
+        return isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'applicant';
+    }
+}
+
+if (!function_exists('is_logged_org')) {
+    function is_logged_org() {
+        return isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'org_user';
+    }
+}
+
 ?>
 <!doctype html>
 <html>
@@ -71,10 +81,11 @@ function is_logged_org(){ return isset($_SESSION['user_type']) && $_SESSION['use
 
 </body>
 </html>
+
 =======
 <?php
-include("DB.php");
-session_start();
+include_once("DB.php");
+
 
 $email = '';
 $password = '';
@@ -105,8 +116,18 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
     }
 }
 
-function is_logged_applicant(){ return isset($_SESSION['user_type']) && $_SESSION['user_type']==='applicant'; }
-function is_logged_org(){ return isset($_SESSION['user_type']) && $_SESSION['user_type']==='org_user'; }
+if (!function_exists('is_logged_applicant')) {
+    function is_logged_applicant() {
+        return isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'applicant';
+    }
+}
+
+if (!function_exists('is_logged_org')) {
+    function is_logged_org() {
+        return isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'org_user';
+    }
+}
+
 ?>
 <!doctype html>
 <html>
@@ -144,4 +165,5 @@ function is_logged_org(){ return isset($_SESSION['user_type']) && $_SESSION['use
 
 </body>
 </html>
+
 >>>>>>> 76038d0 (commit changes)
