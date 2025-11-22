@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 <?php
 include("DB.php");
 session_start();
@@ -128,4 +128,4 @@ if(mysqli_num_rows($result) > 0){
 
 </body>
 </html>
->>>>>>> 76038d0 (commit changes)
+

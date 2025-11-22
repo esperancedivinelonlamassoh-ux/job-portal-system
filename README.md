@@ -148,8 +148,6 @@ Auto-build on commit
 
 👨‍💻 Author
 
-<<<<<<< HEAD
+
 Lonla Massoh Esperance Divine
-=======
-Lonla Massoh Esperance Divine
->>>>>>> 76038d0 (commit changes)
+

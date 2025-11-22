@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 <?php
 include_once("DB.php");
 session_start();
@@ -166,4 +166,4 @@ if (!function_exists('is_logged_org')) {
 </body>
 </html>
 
->>>>>>> 76038d0 (commit changes)
+
