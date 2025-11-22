@@ -1,4 +1,3 @@
-
 <?php
 include("DB.php");
 session_start();
@@ -19,9 +18,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$user) {
-        $err = 'You don’t exist in our system. Please register first.';
+        $err = 'Ce compte n’existe pas encore. Veuillez d’abord vous inscrire.';
     } elseif (!password_verify($password, $user['password_hash'])) {
-        $err = 'Invalid password. Please try again.';
+        $err = 'Mot de passe incorrect. Veuillez réessayer.';
     } else {
         // Successful login
         session_regenerate_id(true);
@@ -47,10 +46,10 @@ if (!function_exists('is_logged_org')) {
 }
 ?>
 <!doctype html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="utf-8">
-    <title>Indeed - Applicant Login</title>
+    <title>Login Candidat - Cameroon Jobs</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <style>
@@ -74,9 +73,10 @@ if (!function_exists('is_logged_org')) {
         }
 
         h2 {
-            font-size: 20px;
+            font-size: 22px;
             text-align: center;
             margin-bottom: 10px;
+            color: #2b5cff;
         }
 
         .error {
@@ -141,25 +141,25 @@ if (!function_exists('is_logged_org')) {
 </head>
 <body>
     <div class="container">
-        <h2>Applicant Login</h2>
+        <h2>Espace Candidat</h2>
 
         <?php if (!empty($err)): ?>
             <div class="error"><?= htmlspecialchars($err) ?></div>
         <?php endif; ?>
 
         <form method="post">
-            <label for="email">Email address *</label><br>
+            <label for="email">Adresse Email *</label><br>
             <input name="email" id="email" type="email" required 
                    value="<?= htmlspecialchars($email) ?>"><br><br>
 
-            <label for="password">Password *</label><br>
+            <label for="password">Mot de passe *</label><br>
             <input name="password" id="password" type="password" required
                    value="<?= htmlspecialchars($password) ?>">
 
-            <button type="submit" class="continue-btn">Continue →</button><br><br>
+            <button type="submit" class="continue-btn">Se connecter →</button><br><br>
         </form>
 
-        <p>Don’t have an account? <a href="register_applicant.php">Register here</a></p>
+        <p>Pas encore de compte ? <a href="register_applicant.php">Créer un compte</a></p>
     </div>
 </body>
 </html>
