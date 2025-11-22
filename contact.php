@@ -203,7 +203,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php
 // contact.php
 
-include 'DB.php'; // Include your DB connection
+include_once 'DB.php'; // Include your DB connection
 
 $success = '';
 $error = '';

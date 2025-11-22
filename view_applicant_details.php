@@ -190,8 +190,8 @@ $applicant = $result->fetch_assoc();
 </html>
 =======
 <?php
-include 'DB.php';
-session_start();
+include_once 'DB.php';
+
 
 // Correct variable: use applicant_id NOT id
 $applicant_id = intval($_GET['applicant_id'] ?? 0);

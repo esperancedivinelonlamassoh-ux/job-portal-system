@@ -221,8 +221,8 @@ $result = mysqli_query($conn, $query);
 </html>
 =======
 <?php
-session_start();
-include 'DB.php';
+
+include_once 'DB.php';
 
 // ✅ Check if applicant is logged in
 if (!isset($_SESSION['applicant_id'])) {

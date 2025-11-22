@@ -65,8 +65,8 @@ if(mysqli_num_rows($result) > 0){
 </html>
 =======
 <?php
-include("DB.php");
-session_start();
+include_once("DB.php");
+
 
 if(!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'applicant'){
     header('Location: login.php');

@@ -162,8 +162,8 @@ if (isset($_GET['id'])){
 </html>
 =======
 <?php
-session_start();
-include 'DB.php';
+
+include_once 'DB.php';
 
 if (isset($_GET['id'])){
     $job_id = $_GET['id'];

@@ -1,7 +1,7 @@
 <<<<<<< HEAD
 <?php
 session_start();
-include 'DB.php';
+include_once 'DB.php';
 
 // Assume the user is logged in
 $applicant_id = $_SESSION['applicant_id'] ?? 1;
@@ -148,8 +148,8 @@ nav a:hover, nav a.active {
 </html>
 =======
 <?php
-session_start();
-include 'DB.php';
+
+include_once'DB.php';
 
 // Assume the user is logged in
 $applicant_id = $_SESSION['applicant_id'] ?? 1;

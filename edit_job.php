@@ -254,8 +254,8 @@ if (isset($_POST['update'])) {
 </html>
 =======
 <?php
-include("DB.php");
-session_start();
+include_once("DB.php");
+
 
 // Only org users can access
 if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'org_user') {

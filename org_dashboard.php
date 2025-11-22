@@ -184,8 +184,8 @@ tr:hover {
 </html>
 =======
 <?php
-include("DB.php");
-session_start();
+include_once("DB.php");
+
 
 if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'org_user') {
     header('Location: login_org.php');

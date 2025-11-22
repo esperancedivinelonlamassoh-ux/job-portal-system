@@ -244,7 +244,7 @@ $reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </html>
 =======
 <?php
-include('DB.php');
+include_once('DB.php');
 $pdo = DB::get();
 
 // Create table if not exists

@@ -106,8 +106,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </html>
 =======
 <?php
-session_start();
-include 'DB.php'; // make sure this connects to your database
+
+include_once 'DB.php'; // make sure this connects to your database
 
 // ✅ Check login status
 if (!isset($_SESSION['applicant_id'])) {

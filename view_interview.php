@@ -184,8 +184,8 @@ tr:hover { background:#f9f9f9; }
 </html>
 =======
 <?php
-include("DB.php");
-session_start();
+include_once("DB.php");
+
 
 // Check if org is logged in
 if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'org_user') {

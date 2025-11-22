@@ -169,8 +169,8 @@ $recommended_result = mysqli_query($conn, $recommended_query);
 </html>
 =======
 <?php
-session_start();
-include 'DB.php';
+
+include_once 'DB.php';
 
 // Assume user is logged in
 $user_id = $_SESSION['user_id'] ?? 1;

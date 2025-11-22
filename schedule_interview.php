@@ -239,8 +239,8 @@ The Company
 </html>
 =======
 <?php
-session_start();
-include 'DB.php';
+
+include_once 'DB.php';
 
 // Only allow organization users
 if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'org_user') {

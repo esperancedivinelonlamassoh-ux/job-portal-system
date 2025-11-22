@@ -48,8 +48,8 @@ Password: <input name="password" type="password" required><br><br>
 </form>
 =======
 <?php
-include("DB.php");
-session_start();
+include_once("DB.php");
+
 if($_SERVER['REQUEST_METHOD']==='POST'){
   $first = trim($_POST['first_name'] ?? '');
   $last = trim($_POST['last_name'] ?? '');
@@ -73,8 +73,17 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
 ?>
 <?php
 
-function is_logged_applicant(){ return isset($_SESSION['user_type']) && $_SESSION['user_type']==='applicant'; }
-function is_logged_org(){ return isset($_SESSION['user_type']) && $_SESSION['user_type']==='org_user'; }
+if (!function_exists('is_logged_applicant')) {
+    function is_logged_applicant() {
+        return isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'applicant';
+    }
+}
+
+if (!function_exists('is_logged_org')) {
+    function is_logged_org() {
+        return isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'org_user';
+    }
+}
 ?>
 <!doctype html><html><head><meta charset="utf-8"><title>Job Portal</title></head><body>
     <link rel="stylesheet" href="css/bootstrap.min.css">

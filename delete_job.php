@@ -30,8 +30,8 @@ if (mysqli_query($conn, $delete_query)) {
 ?>
 =======
 <?php
-include("DB.php");
-session_start();
+include_once("DB.php");
+
 
 // Only org users
 if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'org_user') {

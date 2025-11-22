@@ -252,8 +252,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </html>
 =======
 <?php
-session_start();
-include 'DB.php';
+
+include_once 'DB.php';
 
 // Check login
 if (!isset($_SESSION['applicant_id'])) {

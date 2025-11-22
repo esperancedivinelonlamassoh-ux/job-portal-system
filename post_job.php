@@ -266,8 +266,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </html>
 =======
 <?php
-include("DB.php");
-session_start();
+include_once("DB.php");
+
 
 // Restrict to organization users only
 if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'org_user') {
