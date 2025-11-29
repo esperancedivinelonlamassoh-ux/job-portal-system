@@ -137,6 +137,7 @@ tr:hover {
 <div class="sidebar">
     <h2>🇨🇲 JobPortal</h2>
     <a href="admin.php">Dashboard</a>
+    <a href="adminmessage.php">message</a>
     <a href="post_job.php">Post New Job</a>
     <a href="view_interviews.php" style="background:#006b3f;">Manage Interviews</a>
     <a href="logout.php">Logout</a>
