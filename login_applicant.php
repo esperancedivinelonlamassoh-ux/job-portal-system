@@ -159,7 +159,8 @@ if (!function_exists('is_logged_org')) {
             <button type="submit" class="continue-btn">Se connecter →</button><br><br>
         </form>
 
-        <p>Pas encore de compte ? <a href="register_applicant.php">Créer un compte</a></p>
+        <p>Pas encore de compte ? <a href="register_applicant.php">Créer un compte</a></p> 
     </div>
 </body>
-</html>
+</html> 
+ 

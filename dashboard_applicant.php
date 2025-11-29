@@ -168,6 +168,7 @@ $result = mysqli_query($conn, $query);
     <nav>
         <a href="home.php">Home</a>
         <a href="jobs.php">Jobs</a>
+        <a href="message.php">Jobs</a>
         <a href="recommended_jobs.php">Recommended Jobs</a>
         <a href="applied_jobs.php">Applied Jobs</a>
         <a href="dashboard_applicant.php" class="active">Dashboard</a>
