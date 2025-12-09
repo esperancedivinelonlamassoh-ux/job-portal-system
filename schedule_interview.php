@@ -1,4 +1,3 @@
-
 <?php
 session_start();
 include 'DB.php';
@@ -59,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ";
 
     if (mysqli_query($conn, $insert)) {
-        // Send email
+        // Prepare email
         $to = $applicant['applicant_email'];
         $subject = "Interview Scheduled for {$applicant['job_title']}";
         $interview_datetime = date('d M Y, H:i', strtotime($interview_date));
@@ -82,17 +81,24 @@ Best regards,
 The Company
         ";
 
-        $headers = "From: no-reply@yourdomain.com\r\n";
+        // Set headers
+        $headers = "From: yourgmail@gmail.com\r\n";
+        $headers .= "Reply-To: yourgmail@gmail.com\r\n";
         $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
 
-        @mail($to, $subject, $message, $headers);
-
-        // ✅ FIXED REDIRECT (Use applicant_id)
-        echo "<script>
-            alert('Interview scheduled successfully and email sent to applicant!');
-            window.location.href='view_applicant_details.php?applicant_id={$applicant['applicant_id']}';
-        </script>";
-        exit;
+        // Send email
+        if (mail($to, $subject, $message, $headers)) {
+            echo "<script>
+                alert('Interview scheduled successfully and email sent to applicant!');
+                window.location.href='view_applicant_details.php?applicant_id={$applicant['applicant_id']}';
+            </script>";
+            exit;
+        } else {
+            echo "<script>
+                alert('Interview scheduled but email could not be sent. Check your XAMPP SMTP configuration.');
+                window.location.href='view_applicant_details.php?applicant_id={$applicant['applicant_id']}';
+            </script>";
+        }
     } else {
         die("Error: " . mysqli_error($conn));
     }
@@ -107,102 +113,24 @@ The Company
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 
     <style>
-        body {
-            background-color: #f0f3f5;
-            font-family: Arial, sans-serif;
-        }
-
-        .flag-strip {
-            height: 6px;
-            background: linear-gradient(to right, #007A3D 33%, #CE1126 33%, #CE1126 66%, #FCD116 66%);
-        }
-
-        header {
-            background: white;
-            padding: 15px 60px;
-            border-bottom: 2px solid #CE1126;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        header h1 {
-            color: #CE1126;
-            font-size: 22px;
-            font-weight: bold;
-        }
-
-        nav a {
-            margin-left: 20px;
-            text-decoration: none;
-            color: #222;
-            font-weight: bold;
-        }
-
-        nav a:hover {
-            color: #007A3D;
-        }
-
-        .container {
-            margin-top: 40px;
-            max-width: 650px;
-            background: #fff;
-            padding: 25px;
-            border-radius: 12px;
-            border-left: 8px solid #007A3D;
-            box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
-        }
-
-        h2 {
-            color: #CE1126;
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        label {
-            font-weight: bold;
-            color: #007A3D;
-        }
-
-        .btn-success {
-            background-color: #007A3D;
-            border: none;
-        }
-
-        .btn-success:hover {
-            background-color: #005e2d;
-        }
-
-        .btn-secondary {
-            background-color: #CE1126;
-            border: none;
-        }
-
-        .btn-secondary:hover {
-            background-color: #a70d1f;
-        }
+        body { background-color: #f0f3f5; font-family: Arial, sans-serif; }
+        .container { margin-top: 40px; max-width: 650px; background: #fff; padding: 25px; border-radius: 12px; border-left: 8px solid #007A3D; box-shadow: 0px 4px 10px rgba(0,0,0,0.1);}
+        h2 { color: #CE1126; text-align: center; margin-bottom: 25px; }
+        label { font-weight: bold; color: #007A3D; }
+        .btn-success { background-color: #007A3D; border: none; }
+        .btn-success:hover { background-color: #005e2d; }
+        .btn-secondary { background-color: #CE1126; border: none; }
+        .btn-secondary:hover { background-color: #a70d1f; }
     </style>
 </head>
 
 <body>
-
-<div class="flag-strip"></div>
-
-<header>
-    <h1> Cameroon JobPortal</h1>
-    <nav>
-        <a href="admin.php">Dashboard</a>
-        <a href="post_job.php">Post Job</a>
-        <a href="logout.php">Logout</a>
-    </nav>
-</header>
 
 <div class="container">
     <h2>Schedule Interview for <?php echo htmlspecialchars($applicant['applicant_name']); ?></h2>
     <p><strong style="color:#CE1126;">Job:</strong> <?php echo htmlspecialchars($applicant['job_title']); ?></p>
 
     <form method="post">
-
         <div class="mb-3">
             <label>Interview Date & Time</label>
             <input type="datetime-local" name="interview_date" class="form-control" required>
@@ -229,10 +157,7 @@ The Company
         </div>
 
         <button type="submit" class="btn btn-success">Schedule Interview</button>
-
-        <!-- ✅ FIXED CANCEL BUTTON -->
         <a href="view_applicant_details.php?applicant_id=<?php echo $applicant['applicant_id']; ?>" class="btn btn-secondary mt-2">Cancel</a>
-
     </form>
 </div>
 </body>

@@ -7,6 +7,7 @@ $location = $_GET['location'] ?? '';
 $category = $_GET['category'] ?? '';
 
 $query = "SELECT * FROM jobs WHERE 1=1";
+
 if ($keyword != '') {
     $query .= " AND (title LIKE '%$keyword%' OR company_name LIKE '%$keyword%')";
 }
@@ -150,6 +151,14 @@ $result = mysqli_query($conn, $query);
             box-shadow: 0 6px 12px rgba(0,0,0,0.1);
         }
 
+        .job-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
         .job-card h3 {
             margin: 0;
             color: #d21034;
@@ -198,21 +207,22 @@ $result = mysqli_query($conn, $query);
         }
     </style>
 </head>
+
 <header>
     <h1>Cameroon JobPortal</h1>
     <nav>
-      <a href="home.php">Home</a>
+        <a href="home.php">Home</a>
         <a href="jobs.php">Jobs</a>
         <a href="recommended_jobs.php">Recommended Jobs</a>
         <a href="applied_jobs.php">Applied Jobs</a>
-        
-         <a href="dashboard_applicant.php">Dashboard</a>
+        <a href="dashboard_applicant.php">Dashboard</a>
     </nav>
 </header>
+
 <body>
 
-
 <div class="container">
+
     <div class="page-title">
         <h2>Find Jobs in Cameroon</h2>
         <p>Discover opportunities in Douala, Yaoundé, Buea, Bamenda, and beyond 🇨🇲</p>
@@ -232,27 +242,35 @@ $result = mysqli_query($conn, $query);
         </select>
         <button type="submit">Search</button>
     </form>
-<div class="job-list">
-    <?php
-    if (mysqli_num_rows($result) > 0) {
-        while ($job = mysqli_fetch_assoc($result)) {
-            
 
-            echo '<div class="job-card">';
-            
-            echo '<h3>' . htmlspecialchars($job['title']) . '</h3>';
-            echo '<div class="meta"><strong>' . htmlspecialchars($job['company_name']) . '</strong> — ' . htmlspecialchars($job['location']) . '</div>';
-            echo '<div class="meta">Category: ' . htmlspecialchars($job['category'] ?? 'Not specified') . '</div>';
-            echo '<div class="salary">Salary: ' . htmlspecialchars($job['salary'] ?? 'Negotiable') . '</div>';
-            echo '<div class="meta">Posted on: ' . htmlspecialchars($job['date_posted']) . '</div>';
-            echo '<a class="apply-btn" href="apply.php?job_id=' . urlencode($job['id']) . '">Apply Now</a>';
-            echo '</div>';
+    <div class="job-list">
+        <?php
+        if (mysqli_num_rows($result) > 0) {
+            while ($job = mysqli_fetch_assoc($result)) {
+
+                echo '<div class="job-card">';
+
+                // ⭐ ADD IMAGE DISPLAY (Fix)
+                if (!empty($job['image'])) {
+                    echo '<img src="' . htmlspecialchars($job['image']) . '" alt="Job Image">';
+                } else {
+                    echo '<img src="default-job.jpg" alt="Default Image">';
+                }
+
+                echo '<h3>' . htmlspecialchars($job['title']) . '</h3>';
+                echo '<div class="meta"><strong>' . htmlspecialchars($job['company_name']) . '</strong> — ' . htmlspecialchars($job['location']) . '</div>';
+                echo '<div class="meta">Category: ' . htmlspecialchars($job['category'] ?? 'Not specified') . '</div>';
+                echo '<div class="salary">Salary: ' . htmlspecialchars($job['salary'] ?? 'Negotiable') . '</div>';
+                echo '<div class="meta">Posted on: ' . htmlspecialchars($job['date_posted']) . '</div>';
+                echo '<a class="apply-btn" href="apply.php?job_id=' . urlencode($job['id']) . '">Apply Now</a>';
+
+                echo '</div>';
+            }
+        } else {
+            echo '<p style="text-align:center; color:#555;">No jobs found. Try another search.</p>';
         }
-    } else {
-        echo '<p style="text-align:center; color:#555;">No jobs found. Try another search.</p>';
-    }
-    ?>
-</div>
+        ?>
+    </div>
 
 </div>
 
