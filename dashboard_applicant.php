@@ -1,4 +1,3 @@
-
 <?php
 session_start();
 include 'DB.php';
@@ -11,172 +10,91 @@ if (!isset($_SESSION['applicant_id'])) {
 
 $applicant_id = $_SESSION['applicant_id'];
 
-// ✅ Fetch all interviews for this applicant
-$query = "SELECT i.*, j.title AS job_title, o.name AS org_name
+// ===== Handle reply to admin =====
+$success_msg = '';
+$error_msg = '';
+if (isset($_POST['reply'])) {
+    $message_id = $_POST['message_id'];
+    $reply_text = mysqli_real_escape_string($conn, $_POST['reply_text']);
+
+    // Get original message info
+    $msg = mysqli_fetch_assoc(mysqli_query($conn, "SELECT sender_id, subject FROM messages WHERE id='$message_id'"));
+    $org_id = $msg['sender_id'];
+    $subject = "Re: " . $msg['subject'];
+
+    $sql = "INSERT INTO messages (sender_type, sender_id, receiver_type, receiver_id, subject, message)
+            VALUES ('applicant', '$applicant_id', 'org', '$org_id', '$subject', '$reply_text')";
+    if (mysqli_query($conn, $sql)) {
+        $success_msg = "✅ Reply sent successfully!";
+    } else {
+        $error_msg = "⚠️ Failed to send reply.";
+    }
+}
+
+// ===== Fetch applicant interviews =====
+$interview_query = "SELECT i.*, j.title AS job_title, o.name AS org_name
           FROM interviews i
           JOIN jobs j ON i.job_id = j.id
           JOIN organizations o ON i.org_id = o.id
           WHERE i.applicant_id='$applicant_id'
           ORDER BY i.interview_date DESC";
+$interview_result = mysqli_query($conn, $interview_query);
 
-$result = mysqli_query($conn, $query);
+// ===== Fetch applicant messages =====
+$message_query = "SELECT m.*, o.name AS org_name
+                  FROM messages m
+                  JOIN organizations o ON m.sender_id = o.id
+                  WHERE m.receiver_type='applicant' AND m.receiver_id='$applicant_id'
+                  ORDER BY m.date_sent DESC";
+$message_result = mysqli_query($conn, $message_query);
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>My Interviews 🇨🇲 - JobConnect CM</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
- <style>
-    body {
-        background-color: #eef2f3;
-        font-family: "Poppins", Arial, sans-serif;
-    }
+<meta charset="UTF-8">
+<title>Applicant Dashboard 🇨🇲 - JobConnect CM</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+<style>
+body { font-family:'Poppins', sans-serif; margin:0; background:#eef2f3; display:flex; }
+.sidebar { width:250px; background:linear-gradient(180deg, #007a3d, #ce1126, #fcd116); color:white; padding:20px; height:100vh; position:fixed; }
+.sidebar h2 { text-align:center; margin-bottom:30px; }
+.sidebar a { display:block; color:white; text-decoration:none; padding:12px 15px; margin-bottom:10px; border-radius:8px; font-weight:500; transition:0.3s; }
+.sidebar a:hover, .sidebar a.active { background: rgba(255,255,255,0.2); transform:translateX(5px); }
+.main { margin-left:260px; padding:30px; flex-grow:1; }
 
-    /* ===== HEADER WITH CAMEROON VIBE ===== */
-    header {
-        background: linear-gradient(90deg, #007b3e, #d40000, #fcd116);
-        padding: 18px 45px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        color: white;
-        position: relative;
-    }
+h1 { color:#007a3d; margin-bottom:20px; font-size:28px; }
+h2 { color:#007a3d; margin-bottom:15px; }
 
-    /* African pattern overlay */
-    header::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background-image: url('https://i.imgur.com/7QZQ2kH.png'); /* light African pattern */
-        opacity: 0.12;
-        pointer-events: none;
-    }
+table { width:100%; background:white; border-radius:10px; overflow:hidden; box-shadow:0 3px 10px rgba(0,0,0,0.1); margin-bottom:30px; }
+th, td { padding:12px; border-bottom:1px solid #eee; text-align:left; vertical-align:middle; }
+th { background:#007a3d; color:white; }
+tr:hover { background:#fcfcfc; }
+textarea { width:100%; padding:8px; border-radius:5px; border:1px solid #ccc; margin-bottom:5px; }
+button { background:#007a3d; color:white; border:none; padding:6px 12px; border-radius:5px; cursor:pointer; }
+button:hover { background:#005e2e; }
+.success { color:green; font-weight:bold; margin-bottom:10px; }
+.error { color:red; font-weight:bold; margin-bottom:10px; }
 
-    header h1 {
-        margin: 0;
-        font-size: 26px;
-        font-weight: 800;
-        letter-spacing: 1px;
-        color: #fff;
-        z-index: 2;
-    }
+.status-scheduled { background:#004aad; color:white; padding:4px 8px; border-radius:5px; }
+.status-completed { background:#008a2e; color:white; padding:4px 8px; border-radius:5px; }
+.status-canceled { background:#c10000; color:white; padding:4px 8px; border-radius:5px; }
 
-    nav a {
-        margin-left: 25px;
-        text-decoration: none;
-        font-weight: 600;
-        color: #fff;
-        z-index: 2;
-        position: relative;
-        padding-bottom: 4px;
-    }
-
-    nav a:hover,
-    nav a.active {
-        color: #ffd700;
-        border-bottom: 2px solid #ffd700;
-    }
-
-    /* ===== PAGE TITLE ===== */
-    h2 {
-        text-align: center;
-        color: #007b3e;
-        font-weight: 700;
-        margin: 35px 0;
-        font-size: 28px;
-    }
-
-    .container {
-        max-width: 1100px;
-    }
-
-    /* ===== TABLE STYLING ===== */
-    table {
-        background: white;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 4px 18px rgba(0,0,0,0.10);
-    }
-
-    th {
-        background: #007b3e;
-        color: #fff;
-        font-size: 15px;
-        letter-spacing: 0.3px;
-        padding: 14px;
-    }
-
-    td {
-        padding: 13px;
-        font-size: 14px;
-        color: #333;
-    }
-
-    tr:nth-child(even) { background-color: #f9fafb; }
-    tr:hover { background-color: #f1f3f4; }
-
-    /* ===== STATUS BADGES (MORE CAMEROON STYLE) ===== */
-    .status-badge {
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 13px;
-        font-weight: 600;
-        display: inline-block;
-        text-align: center;
-    }
-
-    .status-scheduled { background: #004aad; color: white; }
-    .status-completed { background: #008a2e; color: white; }
-    .status-canceled  { background: #c10000; color: white; }
-
-    /* ===== FOOTER ===== */
-    footer {
-        background: #007b3e;
-        color: #fff;
-        text-align: center;
-        padding: 18px;
-        margin-top: 60px;
-        border-top: 4px solid #fcd116;
-        font-size: 15px;
-        font-weight: 500;
-    }
-
-    /* ===== MOBILE FRIENDLY ===== */
-    @media (max-width: 768px) {
-        header {
-            flex-direction: column;
-            align-items: flex-start;
-            padding: 18px 25px;
-        }
-        nav {
-            margin-top: 10px;
-        }
-        nav a {
-            margin-left: 0;
-            margin-right: 15px;
-        }
-    }
 </style>
-
 </head>
 <body>
-<header>
-    <h1>Cameroon JobPortal</h1>
-    <nav>
-        <a href="home.php">Home</a>
-        <a href="jobs.php">Jobs</a>
-        <a href="message.php">message</a>
-        <a href="recommended_jobs.php">Recommended Jobs</a>
-        <a href="applied_jobs.php">Applied Jobs</a>
-        <a href="dashboard_applicant.php" class="active">Dashboard</a>
-    </nav>
-</header>
 
-<div class="container">
-    <h2>📅 My Scheduled Interviews</h2>
+<div class="sidebar">
+    <h2>Cameroon JobPortal</h2>
+    <a href="dashboard_applicant.php" class="active">🏠 Dashboard</a>
+    <a href="message_applicant.php">💬 Messages</a>
+    <a href="jobs.php">Jobs</a>
+    <a href="applied_jobs.php">Applied Jobs</a>
+    <a href="logout.php">🚪 Logout</a>
+</div>
+
+<div class="main">
+    <h1>📅 My Scheduled Interviews</h1>
     <table class="table table-bordered table-hover">
         <thead>
             <tr>
@@ -190,13 +108,13 @@ $result = mysqli_query($conn, $query);
         </thead>
         <tbody>
         <?php
-        if (mysqli_num_rows($result) > 0) {
-            while ($interview = mysqli_fetch_assoc($result)) {
-                $status_class = '';
+        if(mysqli_num_rows($interview_result) > 0){
+            while($interview = mysqli_fetch_assoc($interview_result)){
+                $status_class='';
                 switch($interview['status']){
-                    case 'scheduled': $status_class = 'status-scheduled'; break;
-                    case 'completed': $status_class = 'status-completed'; break;
-                    case 'canceled': $status_class = 'status-canceled'; break;
+                    case 'scheduled': $status_class='status-scheduled'; break;
+                    case 'completed': $status_class='status-completed'; break;
+                    case 'canceled': $status_class='status-canceled'; break;
                 }
                 echo "<tr>
                         <td>".htmlspecialchars($interview['job_title'])."</td>
@@ -207,16 +125,50 @@ $result = mysqli_query($conn, $query);
                         <td class='$status_class'>".ucfirst($interview['status'])."</td>
                       </tr>";
             }
-        } else {
-            echo "<tr><td colspan='6' class='text-center'>No interviews scheduled yet. Start applying to Cameroonian companies today!</td></tr>";
+        }else{
+            echo "<tr><td colspan='6' class='text-center'>No interviews scheduled yet.</td></tr>";
         }
         ?>
         </tbody>
     </table>
+
+    <h1>💬 Messages</h1>
+    <?php if($success_msg) echo "<div class='success'>$success_msg</div>"; ?>
+    <?php if($error_msg) echo "<div class='error'>$error_msg</div>"; ?>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>From (Organization)</th>
+                <th>Subject</th>
+                <th>Message</th>
+                <th>Date Sent</th>
+                <th>Reply</th>
+            </tr>
+        </thead>
+        <tbody>
+        <?php if(mysqli_num_rows($message_result) > 0): ?>
+            <?php while($msg = mysqli_fetch_assoc($message_result)): ?>
+            <tr>
+                <td><?= htmlspecialchars($msg['org_name']) ?></td>
+                <td><?= htmlspecialchars($msg['subject']) ?></td>
+                <td><?= htmlspecialchars($msg['message']) ?></td>
+                <td><?= date('d M Y, H:i', strtotime($msg['date_sent'])) ?></td>
+                <td>
+                    <form method="POST">
+                        <input type="hidden" name="message_id" value="<?= $msg['id'] ?>">
+                        <textarea name="reply_text" rows="2" placeholder="Type reply..." required></textarea>
+                        <button type="submit" name="reply">Reply</button>
+                    </form>
+                </td>
+            </tr>
+            <?php endwhile; ?>
+        <?php else: ?>
+            <tr><td colspan="5" class="text-center">No messages yet.</td></tr>
+        <?php endif; ?>
+        </tbody>
+    </table>
 </div>
 
-<footer>
-    &copy; <?= date('Y') ?> JobConnect CM 🇨🇲 — Empowering Cameroonians to find better work opportunities
-</footer>
 </body>
 </html>

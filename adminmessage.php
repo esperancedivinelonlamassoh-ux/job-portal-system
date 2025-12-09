@@ -2,199 +2,73 @@
 include("DB.php");
 session_start();
 
-// Restrict access to organization/admin users only
+// Restrict access to admin/organization users
 if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'org_user') {
-    die("Access denied. You must be logged in as admin.");
+    header('Location: login_org.php');
+    exit;
 }
 
-$admin_id = $_SESSION['org_id']; // admin/org user ID
-
-/* --------------------
-   SEND MESSAGE
--------------------- */
-if(isset($_POST['send_message'])){
-    $receiver_id = intval($_POST['receiver_id']);
-    $message = trim($_POST['message']);
-
-    if($receiver_id > 0 && !empty($message)){
-        $stmt = $conn->prepare("INSERT INTO messages (sender_type,sender_id,receiver_type,receiver_id,message_text) VALUES (?,?,?,?,?)");
-        $sender_type = 'admin';
-        $receiver_type = 'applicant';
-        $stmt->bind_param("siisi", $sender_type, $admin_id, $receiver_type, $receiver_id, $message);
-
-        if($stmt->execute()){
-            echo "Message sent successfully";
-        } else {
-            echo "Error: " . $stmt->error;
-        }
-    } else {
-        echo "Message empty or invalid receiver";
-    }
-    exit();
-}
-
-/* --------------------
-   FETCH MESSAGES
--------------------- */
-if(isset($_POST['fetch_messages'])){
-    $receiver_id = intval($_POST['receiver_id']);
-
-    $stmt = $conn->prepare("
-        SELECT * FROM messages 
-        WHERE (sender_type='admin' AND sender_id=? AND receiver_type='applicant' AND receiver_id=?)
-           OR (sender_type='applicant' AND sender_id=? AND receiver_type='admin' AND receiver_id=?)
-        ORDER BY created_at ASC
-    ");
-    $stmt->bind_param("iiii", $admin_id, $receiver_id, $receiver_id, $admin_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $messages = $result->fetch_all(MYSQLI_ASSOC);
-
-    echo json_encode($messages ?: []);
-    exit();
-}
-
-/* --------------------
-   GET ALL APPLICANTS
--------------------- */
-if(isset($_POST['get_users'])){
-    $result = $conn->query("SELECT id, first_name, last_name FROM applicants ORDER BY first_name ASC");
-    $users = $result->fetch_all(MYSQLI_ASSOC);
-    echo json_encode($users);
-    exit();
-}
+// Fetch all contact messages
+$query = "SELECT * FROM contact_messages ORDER BY date_sent DESC";
+$result = mysqli_query($conn, $query);
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Cameroon JobPortal 🇨🇲 - Admin Messaging</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Messages - Cameroon JobPortal</title>
 <style>
-body { font-family: 'Poppins', sans-serif; background:#f5f6fa; margin:0; }
-header { background:#007A3D; color:white; padding:15px 30px; display:flex; justify-content:space-between; align-items:center; }
-header h1 { font-size:22px; }
-header nav a { color:white; margin-left:15px; text-decoration:none; font-weight:bold; }
-header nav a:hover { text-decoration:underline; }
-
-.container { display:flex; height:calc(100vh - 70px); margin-top:0; }
-.chat-sidebar { width:25%; background:white; overflow-y:auto; border-right:2px solid #ddd; }
-.user-item { padding:12px; border-bottom:1px solid #eee; cursor:pointer; }
-.user-item:hover { background:#f0f8ff; }
-.chat-area { flex:1; display:flex; flex-direction:column; background:#fafafa; }
-.messages { flex:1; padding:20px; overflow-y:auto; }
-.msg { padding:10px; border-radius:10px; margin-bottom:10px; max-width:60%; word-wrap: break-word; }
-.sent { background:#ffce00; align-self:flex-end; }
-.received { background:white; align-self:flex-start; }
-.input-area { display:flex; padding:10px; background:white; border-top:2px solid #ddd; gap:5px; }
-input { flex:1; padding:10px; font-size:16px; }
-button { padding:10px 20px; background:#d10000; color:white; border:none; cursor:pointer; }
-button:hover { background:#a70000; }
-.no-messages { color:#777; text-align:center; margin-top:20px; }
+    body { font-family: 'Poppins', sans-serif; background: #f6f8fa; margin: 0; }
+    .sidebar { width: 250px; background: linear-gradient(180deg, #007a3d, #ce1126, #fcd116); color: white; position: fixed; top: 0; bottom: 0; padding: 20px; }
+    .sidebar a { display: block; color: white; text-decoration: none; padding: 10px 0; margin-bottom: 10px; font-weight: 500; }
+    .main { margin-left: 260px; padding: 30px; }
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
+    th { background: #007a3d; color: white; }
+    tr:hover { background: #fcfcfc; }
 </style>
 </head>
 <body>
 
-<header>
-    <h1>Cameroon JobPortal 🇨🇲</h1>
-    <nav>
-       
-        <a href="admin.php">Dashboard</a>
-        <a href="logout.php">Logout</a>
-    </nav>
-</header>
-
-<div class="container">
-    <!-- Sidebar: Applicants List -->
-    <div class="chat-sidebar" id="userList">
-        <p style="padding:10px;color:#777;">Loading applicants...</p>
-    </div>
-
-    <!-- Chat Area -->
-    <div class="chat-area">
-        <div class="messages" id="messages">
-            <p class="no-messages">Select an applicant to view messages</p>
-        </div>
-        <div class="input-area">
-            <input type="text" id="messageInput" placeholder="Type your message...">
-            <button onclick="sendMessage()">Send</button>
-        </div>
-    </div>
+<div class="sidebar">
+    <h2>Cameroon JobPortal</h2>
+    <a href="admin.php">🏠 Dashboard</a>
+    <a href="adminmessage.php">📩 Messages</a>
+    <a href="post_job.php">📝 Post New Job</a>
+    <a href="view_interview.php">📅 View Interviews</a>
+    <a href="logout.php">🚪 Logout</a>
 </div>
 
-<script>
-let receiver_id = 0;
+<div class="main">
+    <h1>Received Messages</h1>
 
-// Load applicants
-function loadUsers(){
-    fetch("adminmessage.php", {method:"POST", body:new URLSearchParams({get_users:1})})
-    .then(res=>res.json())
-    .then(data=>{
-        let list = document.getElementById("userList");
-        list.innerHTML="";
-        if(data.length === 0){
-            list.innerHTML = "<p style='padding:10px;color:#777;'>No applicants found</p>";
-            return;
-        }
-        data.forEach(u=>{
-            let div = document.createElement("div");
-            div.className = "user-item";
-            div.innerText = u.first_name + " " + u.last_name;
-            div.onclick = ()=>openChat(u.id);
-            list.appendChild(div);
-        });
-    });
-}
-
-// Open chat with applicant
-function openChat(id){
-    receiver_id = id;
-    document.getElementById("messages").innerHTML = "<p class='no-messages'>Loading messages...</p>";
-    loadMessages();
-}
-
-// Load messages
-function loadMessages(){
-    if(receiver_id===0) return;
-    fetch("adminmessage.php", {method:"POST", body:new URLSearchParams({fetch_messages:1, receiver_id:receiver_id})})
-    .then(res=>res.json())
-    .then(data=>{
-        let msgBox = document.getElementById("messages");
-        msgBox.innerHTML="";
-        if(data.length === 0){
-            msgBox.innerHTML = "<p class='no-messages'>No messages yet. Start the conversation!</p>";
-            return;
-        }
-        data.forEach(m=>{
-            let cls = m.sender_type==='admin'?"sent":"received";
-            let div = document.createElement("div");
-            div.className = "msg " + cls;
-            div.innerText = m.message_text;
-            msgBox.appendChild(div);
-        });
-        msgBox.scrollTop = msgBox.scrollHeight;
-    });
-}
-
-// Send message
-function sendMessage(){
-    let text = document.getElementById("messageInput").value.trim();
-    if(text==="" || receiver_id===0) return;
-
-    fetch("adminmessage.php",{method:"POST",body:new URLSearchParams({send_message:1, receiver_id:receiver_id, message:text})})
-    .then(res=>res.text())
-    .then(data=>{
-        console.log("Server response:", data);
-        document.getElementById("messageInput").value="";
-        loadMessages();
-    })
-    .catch(err => console.error(err));
-}
-
-// Auto-refresh messages every 1.5 seconds
-setInterval(loadMessages,1500);
-loadUsers();
-</script>
+    <?php if(mysqli_num_rows($result) > 0): ?>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Subject</th>
+                <th>Message</th>
+                <th>Date Sent</th>
+            </tr>
+            <?php $i = 1; while($row = mysqli_fetch_assoc($result)): ?>
+            <tr>
+                <td><?php echo $i++; ?></td>
+                <td><?php echo htmlspecialchars($row['name']); ?></td>
+                <td><?php echo htmlspecialchars($row['email']); ?></td>
+                <td><?php echo htmlspecialchars($row['subject']); ?></td>
+                <td><?php echo htmlspecialchars($row['message']); ?></td>
+                <td><?php echo $row['date_sent']; ?></td>
+            </tr>
+            <?php endwhile; ?>
+        </table>
+    <?php else: ?>
+        <p>No messages received yet.</p>
+    <?php endif; ?>
+</div>
 
 </body>
 </html>

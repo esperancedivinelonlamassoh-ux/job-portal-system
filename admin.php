@@ -150,8 +150,8 @@ $result = mysqli_query($conn, $query);
 
   <div class="sidebar">
     <h2>Cameroon JobPortal</h2>
-    <a href="admin.php">🏠 Dashboard</a>
-     <a href="adminmessage.php">message</a>
+   <a href="admin.php">🏠 Dashboard</a>
+    <a href="adminmessage.php">📩 Messages</a>
     <a href="post_job.php">📝 Post New Job</a>
     <a href="view_interview.php">📅 View Interviews</a>
     <a href="logout.php">🚪 Logout</a>
