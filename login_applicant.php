@@ -12,17 +12,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $pdo = DB::get();
 
-    // Check if applicant exists
     $stmt = $pdo->prepare('SELECT * FROM applicants WHERE email = ? LIMIT 1');
     $stmt->execute([$email]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$user) {
-        $err = 'Ce compte n’existe pas encore. Veuillez d’abord vous inscrire.';
+        $err = 'This account does not exist. Please register first.';
     } elseif (!password_verify($password, $user['password_hash'])) {
-        $err = 'Mot de passe incorrect. Veuillez réessayer.';
+        $err = 'Invalid password. Try again.';
     } else {
-        // Successful login
         session_regenerate_id(true);
         $_SESSION['user_type'] = 'applicant';
         $_SESSION['applicant_id'] = $user['id'];
@@ -32,135 +30,165 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 }
-
-if (!function_exists('is_logged_applicant')) {
-    function is_logged_applicant() {
-        return isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'applicant';
-    }
-}
-
-if (!function_exists('is_logged_org')) {
-    function is_logged_org() {
-        return isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'org_user';
-    }
-}
 ?>
+
 <!doctype html>
-<html lang="fr">
+<html>
 <head>
-    <meta charset="utf-8">
-    <title>Login Candidat - Cameroon Jobs</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8">
+<title>Applicant Login - JobPortal CM</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #fff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-        }
+<style>
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg,#1e293b,#0f172a);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    margin:0;
+}
 
-        .container {
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 30px 40px;
-            width: 350px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-        }
+/* CARD */
+.container {
+    background:white;
+    padding:35px;
+    border-radius:12px;
+    width:350px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.2);
+}
 
-        h2 {
-            font-size: 22px;
-            text-align: center;
-            margin-bottom: 10px;
-            color: #2b5cff;
-        }
+/* TITLE */
+h2 {
+    text-align:center;
+    color:#007a3d;
+    margin-bottom:20px;
+}
 
-        .error {
-            background-color: #ffe6e6;
-            color: #d8000c;
-            border: 1px solid #d8000c;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            text-align: center;
-            font-size: 14px;
-        }
+/* ERROR */
+.error {
+    background:#ffe6e6;
+    color:#d8000c;
+    padding:10px;
+    border-radius:5px;
+    margin-bottom:15px;
+    text-align:center;
+}
 
-        input[type="email"],
-        input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #d0d7ff;
-            border-radius: 5px;
-            font-size: 15px;
-            outline: none;
-            box-sizing: border-box;
-        }
+/* INPUT */
+input {
+    width:100%;
+    padding:10px;
+    border:1px solid #ccc;
+    border-radius:6px;
+    margin-top:5px;
+}
 
-        input:focus {
-            border-color: #2b5cff;
-        }
+input:focus {
+    border-color:#007a3d;
+    outline:none;
+}
 
-        .continue-btn {
-            width: 100%;
-            padding: 12px;
-            background-color: #2b5cff;
-            color: white;
-            font-weight: bold;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-top: 15px;
-            transition: background-color 0.3s;
-        }
+/* PASSWORD WRAPPER */
+.password-box {
+    position:relative;
+}
 
-        .continue-btn:hover {
-            background-color: #244dcc;
-        }
+.toggle {
+    position:absolute;
+    right:10px;
+    top:50%;
+    transform:translateY(-50%);
+    cursor:pointer;
+}
 
-        p {
-            text-align: center;
-            color: #555;
-            font-size: 14px;
-            margin-top: 20px;
-        }
+/* BUTTON */
+button {
+    width:100%;
+    padding:12px;
+    background:#007a3d;
+    color:white;
+    border:none;
+    border-radius:6px;
+    margin-top:15px;
+    font-weight:bold;
+    cursor:pointer;
+}
 
-        p a {
-            color: #2b5cff;
-            text-decoration: none;
-        }
+button:hover {
+    background:#005e2e;
+}
 
-        p a:hover {
-            text-decoration: underline;
-        }
-    </style>
+/* LINKS */
+.links {
+    display:flex;
+    justify-content:space-between;
+    margin-top:10px;
+    font-size:13px;
+}
+
+.links a {
+    color:#007a3d;
+    text-decoration:none;
+}
+
+.links a:hover {
+    text-decoration:underline;
+}
+
+/* FOOT TEXT */
+p {
+    text-align:center;
+    margin-top:20px;
+}
+</style>
 </head>
+
 <body>
-    <div class="container">
-        <h2>Espace Candidat</h2>
 
-        <?php if (!empty($err)): ?>
-            <div class="error"><?= htmlspecialchars($err) ?></div>
-        <?php endif; ?>
+<div class="container">
+    <h2>Applicant Login</h2>
 
-        <form method="post">
-            <label for="email">Adresse Email *</label><br>
-            <input name="email" id="email" type="email" required 
-                   value="<?= htmlspecialchars($email) ?>"><br><br>
+    <?php if (!empty($err)): ?>
+        <div class="error"><?= htmlspecialchars($err) ?></div>
+    <?php endif; ?>
 
-            <label for="password">Mot de passe *</label><br>
-            <input name="password" id="password" type="password" required
-                   value="<?= htmlspecialchars($password) ?>">
+    <form method="post">
 
-            <button type="submit" class="continue-btn">Se connecter →</button><br><br>
-        </form>
+        <label>Email</label>
+        <input name="email" type="email" required 
+               value="<?= htmlspecialchars($email) ?>">
 
-        <p>Pas encore de compte ? <a href="register_applicant.php">Créer un compte</a></p> 
-    </div>
+        <br><br>
+
+        <label>Password</label>
+        <div class="password-box">
+            <input name="password" type="password" id="password" required>
+            <span class="toggle" onclick="togglePassword()">👁️</span>
+        </div>
+
+        <!-- 🔥 FORGOT PASSWORD LINK -->
+        <div class="links">
+            <span></span>
+            <a href="reset_password.php">Forgot Password?</a>
+        </div>
+
+        <button type="submit">Login</button>
+    </form>
+
+    <p>
+        Don't have an account? 
+        <a href="register_applicant.php">Create one</a>
+    </p>
+</div>
+
+<script>
+function togglePassword() {
+    var input = document.getElementById("password");
+    input.type = input.type === "password" ? "text" : "password";
+}
+</script>
+
 </body>
-</html> 
- 
+</html>

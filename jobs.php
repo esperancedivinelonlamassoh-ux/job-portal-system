@@ -215,6 +215,7 @@ $result = mysqli_query($conn, $query);
         <a href="jobs.php">Jobs</a>
         <a href="recommended_jobs.php">Recommended Jobs</a>
         <a href="applied_jobs.php">Applied Jobs</a>
+        <a href="contact.php">Contact</a>
         <a href="dashboard_applicant.php">Dashboard</a>
     </nav>
 </header>

@@ -1,9 +1,7 @@
-
 <?php
 include("DB.php");
 session_start();
 
-// Restrict access to organization users only
 if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'org_user') {
     header('Location: login_org.php');
     exit;
@@ -11,195 +9,254 @@ if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'org_user') {
 
 $org_id = $_SESSION['org_id'];
 
-// Fetch all jobs for this organization
+/* JOBS */
 $query = "SELECT * FROM jobs WHERE organization_id = '$org_id' ORDER BY date_posted DESC";
 $result = mysqli_query($conn, $query);
+
+/* STATS */
+$total_jobs = mysqli_num_rows($result);
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard - JobPortal Cameroon 🇨🇲</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard - JobPortal Cameroon 🇨🇲</title>
 
-  <style>
-    * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-    body { margin: 0; display: flex; min-height: 100vh; background: #f5f6fa; }
+<style>
+* {
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
 
-    /* SIDEBAR */
-    .sidebar {
-      width: 250px;
-      background: linear-gradient(180deg, #007a3d, #ce1126, #fcd116);
-      color: white;
-      padding: 20px;
-      position: fixed;
-      top: 0;
-      bottom: 0;
-      box-shadow: 2px 0 10px rgba(0,0,0,0.2);
-    }
-    .sidebar h2 {
-      text-align: center;
-      margin-bottom: 30px;
-      font-size: 22px;
-      font-weight: 700;
-    }
-    .sidebar a {
-      display: block;
-      color: white;
-      text-decoration: none;
-      padding: 12px 15px;
-      margin-bottom: 10px;
-      border-radius: 8px;
-      font-weight: 500;
-      transition: 0.3s;
-    }
-    .sidebar a:hover {
-      background: rgba(255,255,255,0.2);
-      transform: translateX(5px);
-    }
+body {
+    margin: 0;
+    display: flex;
+    background: #f4f6f9;
+}
 
-    /* MAIN CONTENT */
-    .main {
-      margin-left: 260px;
-      padding: 30px;
-      flex-grow: 1;
-    }
+/* SIDEBAR */
+.sidebar {
+    width: 250px;
+    background: linear-gradient(180deg, #007a3d, #ce1126, #fcd116);
+    color: white;
+    padding: 20px;
+    height: 100vh;
+    position: fixed;
+}
 
-    h1 {
-      color: #007a3d;
-      margin-bottom: 20px;
-      font-size: 28px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    h1::before {
-      content: "🇨🇲";
-    }
+.sidebar h2 {
+    text-align: center;
+    margin-bottom: 30px;
+}
 
-    .post-btn {
-      display: inline-block;
-      background: #007a3d;
-      color: white;
-      padding: 10px 18px;
-      border-radius: 8px;
-      margin-bottom: 25px;
-      text-decoration: none;
-      font-weight: bold;
-      transition: 0.3s;
-    }
-    .post-btn:hover {
-      background: #005e2e;
-    }
+.sidebar a {
+    display: block;
+    color: white;
+    text-decoration: none;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    transition: 0.3s;
+}
 
-    /* TABLE */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-    }
-    th, td {
-      padding: 14px;
-      border-bottom: 1px solid #eee;
-    }
-    th {
-      background: #007a3d;
-      color: white;
-      text-transform: uppercase;
-      font-size: 14px;
-    }
-    tr:hover {
-      background: #fcfcfc;
-    }
+.sidebar a:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateX(5px);
+}
 
-    td img {
-      width: 60px;
-      height: 60px;
-      object-fit: cover;
-      border-radius: 6px;
-    }
+/* MAIN */
+.main {
+    margin-left: 260px;
+    padding: 30px;
+    width: 100%;
+}
 
-    /* ACTION BUTTONS */
-    .btn {
-      padding: 6px 10px;
-      text-decoration: none;
-      color: white;
-      border-radius: 5px;
-      font-size: 13px;
-    }
-    .view-btn { background: #17a2b8; }
-    .edit-btn { background: #28a745; }
-    .delete-btn { background: #dc3545; }
-    .btn:hover { opacity: 0.85; }
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
 
-    /* FOOTER */
-    footer {
-      text-align: center;
-      padding: 15px;
-      color: #555;
-      margin-top: 30px;
-      font-size: 13px;
-    }
-  </style>
+.header h1 {
+    color: #007a3d;
+    margin: 0;
+}
+
+/* STATS CARDS */
+.stats {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.card {
+    flex: 1;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+.card h3 {
+    margin: 0;
+    color: #007a3d;
+}
+
+.card p {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+/* BUTTON */
+.post-btn {
+    display: inline-block;
+    background: #007a3d;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    margin-bottom: 20px;
+    transition: 0.3s;
+}
+
+.post-btn:hover {
+    background: #005e2e;
+}
+
+/* JOB CARDS */
+.jobs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.job-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    transition: 0.3s;
+}
+
+.job-card:hover {
+    transform: translateY(-5px);
+}
+
+.job-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #007a3d;
+    margin-bottom: 10px;
+}
+
+.job-info {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+/* ACTION BUTTONS */
+.actions {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    padding: 6px 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    color: white;
+    font-size: 13px;
+}
+
+.view { background: #17a2b8; }
+.edit { background: #28a745; }
+.delete { background: #dc3545; }
+
+.btn:hover {
+    opacity: 0.85;
+}
+</style>
 </head>
+
 <body>
 
-  <div class="sidebar">
+<div class="sidebar">
     <h2>Cameroon JobPortal</h2>
-   <a href="admin.php">🏠 Dashboard</a>
+    <a href="admin.php">🏠 Dashboard</a>
     <a href="adminmessage.php">📩 Messages</a>
     <a href="post_job.php">📝 Post New Job</a>
-    <a href="view_interview.php">📅 View Interviews</a>
+    <a href="view_interview.php">📅 Interviews</a>
     <a href="logout.php">🚪 Logout</a>
-  </div>
+</div>
 
-  <div class="main">
-    <h1>Your Posted Jobs</h1>
-    <a href="post_job.php" class="post-btn">+ Post a New Job</a>
+<div class="main">
 
-    <table>
-      <tr>
-        <th>Image</th>
-        <th>Title</th>
-        <th>Location</th>
-        <th>Salary</th>
-        <th>Date Posted</th>
-        <th>Actions</th>
-      </tr>
+    <div class="header">
+        <h1>Your Job Dashboard</h1>
+        <a href="post_job.php" class="post-btn">+ Post Job</a>
+    </div>
 
-      <?php
-      if (mysqli_num_rows($result) > 0) {
-          while ($job = mysqli_fetch_assoc($result)) {
+    <!-- STATS -->
+    <div class="stats">
+        <div class="card">
+            <h3>Total Jobs</h3>
+            <p><?= $total_jobs ?></p>
+        </div>
 
-              $img = !empty($job['image']) ? $job['image'] : "default.jpg";
+        <div class="card">
+            <h3>Active Jobs</h3>
+            <p><?= $total_jobs ?></p>
+        </div>
 
-              echo "<tr>
-                      <td><img src='" . htmlspecialchars($img) . "'></td>
-                      <td>" . htmlspecialchars($job['title']) . "</td>
-                      <td>" . htmlspecialchars($job['location']) . "</td>
-                      <td>" . htmlspecialchars($job['salary']) . "</td>
-                      <td>" . htmlspecialchars($job['date_posted']) . "</td>
-                      <td>
-                        <a class='btn view-btn' href='view_applicants.php?job_id=" . $job['id'] . "'>View</a>
-                        <a class='btn edit-btn' href='edit_job.php?id=" . $job['id'] . "'>Edit</a>
-                        <a class='btn delete-btn' onclick=\"return confirm('Delete this job?')\" href='delete_job.php?id=" . $job['id'] . "'>Delete</a>
-                      </td>
-                    </tr>";
-          }
-      } else {
-          echo "<tr><td colspan='6' style='text-align:center;color:#777;'>No jobs posted yet.</td></tr>";
-      }
-      ?>
-    </table>
+        <div class="card">
+            <h3>Applications</h3>
+            <p>--</p>
+        </div>
+    </div>
 
-    <footer>
-      © <?php echo date("Y"); ?> JobPortal Cameroon — Empowering Local Opportunities 🇨🇲
-    </footer>
-  </div>
+    <!-- JOB CARDS -->
+    <div class="jobs">
+
+        <?php
+        if (mysqli_num_rows($result) > 0) {
+            mysqli_data_seek($result, 0); // reset pointer
+
+            while ($job = mysqli_fetch_assoc($result)) {
+
+                $img = !empty($job['image']) ? $job['image'] : "default.jpg";
+
+                echo "
+                <div class='job-card'>
+
+                    <div class='job-title'>".$job['title']."</div>
+
+                    <div class='job-info'>📍 ".$job['location']."</div>
+                    <div class='job-info'>💰 ".$job['salary']."</div>
+                    <div class='job-info'>📅 ".$job['date_posted']."</div>
+
+                    <div class='actions'>
+                        <a class='btn view' href='view_applicants.php?job_id=".$job['id']."'>View</a>
+                        <a class='btn edit' href='edit_job.php?id=".$job['id']."'>Edit</a>
+                        <a class='btn delete' onclick=\"return confirm('Delete this job?')\" href='delete_job.php?id=".$job['id']."'>Delete</a>
+                    </div>
+
+                </div>";
+            }
+        } else {
+            echo "<p style='color:#777;'>No jobs posted yet.</p>";
+        }
+        ?>
+
+    </div>
+
+</div>
 
 </body>
 </html>
