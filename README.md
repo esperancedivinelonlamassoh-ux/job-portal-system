@@ -1,153 +1,207 @@
-📘 webased job recuitment and online interview
+# Job Portal System
 
-A web-based platform that allows job seekers to apply for jobs and employers to manage job postings.
-This system supports job posting, applications, applicant tracking, and includes DevOps workflow using Git, GitHub, and CI/CD.
+A web-based online recruitment and online interview system designed for organizations in Cameroon.
 
-🧩 Problem Statement
+## 📌 Overview
 
-Many companies struggle to manage job applications manually.
-Job seekers also find it difficult to know available job opportunities early enough.
+The **Job Portal System** is a web application that helps organizations publish job opportunities online and allows applicants to discover available positions, submit applications, and participate in scheduled online interviews.
 
-This system solves these problems by providing:
+The project was developed to address challenges associated with traditional recruitment methods, where job opportunities may be communicated through posters, paper notices, or other offline methods.
 
-A central platform for posting job vacancies
+## 🎯 Problem Statement
 
-A way for job seekers to apply online
+Traditional recruitment processes can make it difficult for applicants to discover job opportunities and submit their applications conveniently.
 
-A dashboard for employers to manage applications
+Organizations may also face challenges managing large numbers of applications using paper-based processes.
 
-Automation using DevOps tools for version control and development workflow
+This system provides a centralized digital platform that brings organizations and applicants together while supporting the recruitment process from job posting to application management and online interviews.
 
-⭐ Key Features
-For Job Seekers
+## ✨ Key Features
 
-Create account and log in
+### 👤 Applicant Features
 
-View all available jobs
+- Create and manage an applicant account
+- Browse available job opportunities
+- View detailed job information
+- Search and explore available positions
+- Submit job applications online
+- Upload CV and supporting documents
+- Upload identification documents when required
+- Save interesting job opportunities
+- Track application status
+- Communicate through the messaging system
+- Receive notifications
+- Reset account password
+- Participate in scheduled online interviews
 
-Apply for a job
+### 🏢 Organization Features
 
-Upload CV
+- Create and manage organization accounts
+- Publish job opportunities
+- Add job descriptions, salary information, location, category, and requirements
+- Manage published jobs
+- View submitted applications
+- Review applicant information and documents
+- Manage recruitment activities
+- Communicate with applicants
+- Schedule online interviews
 
-See application status
+### 🛠️ Administration
 
-For Employers
+- Administrative dashboard
+- Manage system users and organizations
+- Manage recruitment-related information
+- Monitor system activities
 
-Post job vacancies
+## 💻 Technologies Used
 
-Manage posted jobs
+- **PHP** — Backend development
+- **MySQL / MariaDB** — Database management
+- **HTML5** — Page structure
+- **CSS3** — Styling and responsive layouts
+- **JavaScript** — Client-side functionality
+- **XAMPP** — Local development environment
+- **Git & GitHub** — Version control and project management
+- **VS Code** — Development environment
 
-View list of applicants
+## 🗄️ Database
 
-View applicant profile details
+The system uses a relational database to manage recruitment data.
 
-Update or delete job posts
+Some of the main entities include:
 
-System Features
+- Applicants
+- Organizations
+- Jobs
+- Applications
+- Application Documents
+- Interviews
+- Messages
+- Notifications
+- Saved Jobs
+- Documents
+- Salaries
+- Company Reviews
+- Contact Messages
+- Administrators
 
-MySQL database
+## 📂 Project Structure
 
-PHP backend
+```text
+job/
+├── admin.php
+├── dashboard_applicant.php
+├── home.php
+├── jobs.php
+├── login_applicant.php
+├── login_org.php
+├── message.php
+├── reset_password.php
+├── uploads/
+├── .gitignore
+└── ...
+```
 
-HTML/CSS front-end
+> User-uploaded files in the `uploads/` directory are excluded from the Git repository for privacy and security.
 
-Secure login system
+## ⚙️ Running the Project Locally
 
-Clean and responsive UI
+### Requirements
 
-🛠 Tools & Technologies Used
-Backend
+Make sure you have:
 
-PHP
+- XAMPP
+- PHP
+- MySQL or MariaDB
+- A web browser
+- Git
+- VS Code or another code editor
 
-MySQL
+### Installation
 
-Frontend
+1. Clone the repository:
 
-HTML
+```bash
+git clone https://github.com/esperancedivinelonlamassoh-ux/job-portal-system.git
+```
 
-CSS
+2. Move the project into the XAMPP `htdocs` directory:
 
-JavaScript
-
-DevOps Tools
-
-Git (Version Control)
-
-GitHub (Repository Hosting)
-
-GitHub Actions (CI/CD Pipeline)
-
-VS Code (Development Environment)
-
-🚀 Setup & Installation Guide
-
-Follow these steps to run the project on your computer:
-
-1. Install XAMPP
-
-Download from: https://www.apachefriends.org
-
-2. Move the project into htdocs
+```text
 C:\xampp\htdocs\job
+```
 
-3. Import the Database
+3. Start **Apache** and **MySQL** from XAMPP.
 
-Open phpMyAdmin
+4. Create the required database in **phpMyAdmin**.
 
-Create a new database (example: job_portal_db)
+5. Configure the database connection in the project according to your local MySQL credentials.
 
-Click Import
+6. Open the application in your browser:
 
-Select the SQL file from the project
+```text
+http://localhost/job/
+```
 
-Click Go
+## 🔐 Security Considerations
 
-4. Run the Project
+The project includes authentication and password-reset functionality.
 
-Open your browser and enter:
+Sensitive user-uploaded documents are intentionally excluded from version control using `.gitignore`.
 
-http://localhost/job-portal-system
+For production deployment, additional security measures should be implemented, including:
 
-🖼 Screenshots
+- Strong password hashing
+- Input validation and sanitization
+- Secure file-upload validation
+- CSRF protection
+- Secure session management
+- HTTPS
+- Environment-based configuration for sensitive credentials
 
-<img width="1798" height="877" alt="Annotation 2025-11-20 181235" src="https://github.com/user-attachments/assets/86767125-d898-4028-ae35-ceca8a4c8a39" />
+## 🚀 Future Improvements
 
+Possible future improvements include:
 
-Homepage
+- REST API integration
+- Improved online interview integration
+- Email notifications
+- Advanced applicant search and filtering
+- Improved organization verification
+- Enhanced security
+- Cloud deployment
+- Mobile application
+- AI-assisted recruitment features
 
-Admin Dashboard
+## 📚 Project Purpose
 
-🔄 GitHub Workflow (DevOps Practices)
+This project was developed as a practical software engineering project to demonstrate skills in:
 
-This project uses a DevOps workflow including:
+- Web application development
+- Backend development with PHP
+- Relational database design
+- Authentication and authorization
+- File handling
+- Recruitment workflow design
+- Version control with Git
+- Software development practices
 
-1. Version Control (Git)
+## 👨‍💻 Author
 
-All code is tracked using Git
+**Lonla Massoh Esperance Divine**
 
-Changes are committed with messages
+Software Engineering Student | Web & Backend Developer
 
-2. Branching Strategy
+GitHub:  
+https://github.com/esperancedivinelonlamassoh-ux
+```
 
-main branch for final code
+### After saving the file
 
-feature-* branches for new features
+Go back to your PowerShell terminal and run **only this first**:
 
-bugfix-* branches for fixing issues
+```powershell
+git status
+```
 
-3. Pull Requests
-
-All major changes are reviewed through pull requests
-
-4. CI/CD (GitHub Actions)
-
-Automatic syntax checking for PHP
-
-Auto-build on commit
-
-👨‍💻 Author
-
-
-Lonla Massoh Esperance Divine
-
+Send me the result. Then we'll commit the new README and push it to GitHub. 🚀
